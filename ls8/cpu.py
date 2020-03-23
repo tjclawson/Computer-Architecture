@@ -2,16 +2,20 @@
 
 import sys
 
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
-        self.ram = [0] * 256,
-        self.reg = [0] * 8,
-        self.pc = 0,
-        self.ir = 0,
-        self.mar = 0,
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        self.ir = 0
+        self.mar = 0
         self.mdr = 0
 
     def load(self):
@@ -51,6 +55,9 @@ class CPU:
     def ram_write(self, value, address):
         self.ram[address] = value
 
+    def get_arg_count(self):
+        return int(format(self.ir, '#010b')[2:4], 2)
+
     def trace(self):
         """
         Handy function to print out the CPU state. You might want to call this
@@ -73,4 +80,22 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        running = True
+
+        while running:
+            self.ir = self.ram[self.pc]
+            operand_a = self.ram[self.pc + 1]
+            operand_b = self.ram[self.pc + 2]
+
+            if self.ir == HLT:
+                running = False
+
+            elif self.ir == LDI:
+                self.reg[operand_a] = operand_b
+                self.pc += self.get_arg_count()
+
+            elif self.ir == PRN:
+                print(self.reg[operand_a])
+                self.pc += self.get_arg_count()
+
+            self.pc += 1
