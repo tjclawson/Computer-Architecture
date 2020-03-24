@@ -25,15 +25,35 @@ class CPU:
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        program = []
+
+        if len(sys.argv) != 2:
+            print("usage: ls8.py filename")
+            sys.exit(1)
+
+        filename = sys.argv[1]
+
+        try:
+            with open(filename) as f:
+                for line in f:
+
+                    # Ignore comments
+                    comment_split = line.split("#")
+
+                    # Strip out whitespace
+                    opstring = comment_split[0].strip()
+
+                    # Ignore blank lines
+                    if opstring == '':
+                        continue
+
+                    # Convert opstring to base 2 int
+                    opcode = int(opstring, 2)
+                    program.append(opcode)
+
+        except FileNotFoundError:
+            print("File not found")
+            sys.exit(2)
 
         for instruction in program:
             self.ram[address] = instruction
