@@ -81,7 +81,7 @@ class CPU:
         self.ram[address] = value
 
     def get_arg_count(self):
-        return int(format(self.ir, '#010b')[2:4], 2)
+        return int(self.ir >> 6)
 
     def trace(self):
         """
