@@ -19,6 +19,12 @@ class CPU:
         self.ir = 0
         self.mar = 0
         self.mdr = 0
+        self.optable = {}
+        self.optable[0b00000001] = self.handle_hlt
+        self.optable[0b10000010] = self.handle_ldi
+        self.optable[0b01000111] = self.handle_prn
+        self.optable[0b10100010] = self.handle_mul
+
 
     def load(self):
         """Load a program into memory."""
@@ -100,6 +106,18 @@ class CPU:
 
         print()
 
+    def handle_hlt(self, operand_a, operand_b):
+        sys.exit()
+
+    def handle_ldi(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+
+    def handle_prn(self, operand_a, operand_b):
+        print(self.reg[operand_a])
+
+    def handle_mul(self, operand_a, operand_b):
+        self.reg[operand_a] *= self.reg[operand_b]
+
     def run(self):
         """Run the CPU."""
         running = True
@@ -109,19 +127,6 @@ class CPU:
             operand_a = self.ram[self.pc + 1]
             operand_b = self.ram[self.pc + 2]
 
-            if self.ir == HLT:
-                running = False
+            self.optable[self.ir](operand_a, operand_b)
 
-            elif self.ir == LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += self.get_arg_count()
-
-            elif self.ir == PRN:
-                print(self.reg[operand_a])
-                self.pc += self.get_arg_count()
-
-            elif self.ir == MUL:
-                self.reg[operand_a] *= self.reg[operand_b]
-                print(self.reg[operand_a])
-
-            self.pc += 1
+            self.pc += self.get_arg_count() + 1
