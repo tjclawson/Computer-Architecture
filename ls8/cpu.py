@@ -21,7 +21,10 @@ class CPU:
                         0b01000111: self.handle_prn,
                         0b10100010: self.handle_mul,
                         0b01000101: self.handle_push,
-                        0b01000110: self.handle_pop}
+                        0b01000110: self.handle_pop,
+                        0b01010000: self.handle_call,
+                        0b00010001: self.handle_ret,
+                        0b10100000: self.handle_add}
 
         # Init stack pointer in register
         self.reg[7] = 0xf4
@@ -104,6 +107,7 @@ class CPU:
         print()
 
     def handle_hlt(self, operand_a, operand_b):
+        self.pc += 1
         sys.exit()
 
     def handle_ldi(self, operand_a, operand_b):
@@ -115,6 +119,9 @@ class CPU:
     def handle_mul(self, operand_a, operand_b):
         self.reg[operand_a] *= self.reg[operand_b]
 
+    def handle_add(self, operand_a, operand_b):
+        self.reg[operand_a] += self.reg[operand_b]
+
     def handle_push(self, operand_a, operand_b):
         self.reg[7] -= 1
         self.ram[self.reg[7]] = self.reg[operand_a]
@@ -122,6 +129,15 @@ class CPU:
     def handle_pop(self, operand_a, operand_b):
         self.reg[operand_a] = self.ram[self.reg[7]]
         self.reg[7] += 1
+
+    def handle_call(self, operand_a, operand_b):
+        self.reg[7] -= 1
+        self.ram[self.reg[7]] = self.pc + 2
+        self.pc = self.reg[operand_a]
+
+    def handle_ret(self, operand_a, operand_b):
+        self.handle_pop(operand_a, operand_b)
+        self.pc = self.reg[operand_a]
 
     def run(self):
         """Run the CPU."""
@@ -134,4 +150,6 @@ class CPU:
 
             self.optable[self.ir](operand_a, operand_b)
 
-            self.pc += self.get_arg_count() + 1
+            # Bitwise shift to check if 4th bit of opcode is 0 i.e. not a PC mutator,
+            if (self.ir >> 4) % 2 == 0:
+                self.pc += self.get_arg_count() + 1
