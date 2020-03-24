@@ -2,11 +2,6 @@
 
 import sys
 
-HLT = 0b00000001
-LDI = 0b10000010
-PRN = 0b01000111
-MUL = 0b10100010
-
 
 class CPU:
     """Main CPU class."""
@@ -19,19 +14,22 @@ class CPU:
         self.ir = 0
         self.mar = 0
         self.mdr = 0
-        self.optable = {}
-        self.optable[0b00000001] = self.handle_hlt
-        self.optable[0b10000010] = self.handle_ldi
-        self.optable[0b01000111] = self.handle_prn
-        self.optable[0b10100010] = self.handle_mul
 
+        # Init branch table for opcodes
+        self.optable = {0b00000001: self.handle_hlt,
+                        0b10000010: self.handle_ldi,
+                        0b01000111: self.handle_prn,
+                        0b10100010: self.handle_mul,
+                        0b01000101: self.handle_push,
+                        0b01000110: self.handle_pop}
+
+        # Init stack pointer in register
+        self.reg[7] = 0xf4
 
     def load(self):
         """Load a program into memory."""
 
         address = 0
-
-        # For now, we've just hardcoded a program:
 
         program = []
 
@@ -66,7 +64,6 @@ class CPU:
         for instruction in program:
             self.ram[address] = instruction
             address += 1
-
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -117,6 +114,14 @@ class CPU:
 
     def handle_mul(self, operand_a, operand_b):
         self.reg[operand_a] *= self.reg[operand_b]
+
+    def handle_push(self, operand_a, operand_b):
+        self.reg[7] -= 1
+        self.ram[self.reg[7]] = self.reg[operand_a]
+
+    def handle_pop(self, operand_a, operand_b):
+        self.reg[operand_a] = self.ram[self.reg[7]]
+        self.reg[7] += 1
 
     def run(self):
         """Run the CPU."""
