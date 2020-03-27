@@ -30,7 +30,8 @@ class CPU:
                         0b01010000: self.handle_call,
                         0b00010001: self.handle_ret,
                         0b10100000: self.handle_add,
-                        0b10100111: self.handle_cmp}
+                        0b10100111: self.handle_cmp,
+                        0b01010100: self.handle_jmp}
 
         # Init stack pointer in register
         self.reg[7] = 0xf4
@@ -156,16 +157,12 @@ class CPU:
             self.fl = 4
             # self.fl = ((1 << 2) | self.fl)
 
+    def handle_jmp(self, operand_a, operand_b):
+        self.pc = self.reg[operand_a]
+
     def run(self):
         """Run the CPU."""
         running = True
-
-        self.handle_cmp(1, 1)
-        print(bin(self.fl))
-        self.handle_cmp(1, 2)
-        print(bin(self.fl))
-        self.handle_cmp(2, 1)
-        print(bin(self.fl))
 
         while running:
             self.ir = self.ram[self.pc]
