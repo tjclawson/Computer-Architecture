@@ -83,6 +83,8 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
+        if op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -126,10 +128,10 @@ class CPU:
         print(self.reg[operand_a])
 
     def handle_mul(self, operand_a, operand_b):
-        self.reg[operand_a] *= self.reg[operand_b]
+        self.alu("MUL", operand_a, operand_b)
 
     def handle_add(self, operand_a, operand_b):
-        self.reg[operand_a] += self.reg[operand_b]
+        self.alu("MUL", operand_a, operand_b)
 
     def handle_push(self, operand_a, operand_b):
         self.reg[7] -= 1
