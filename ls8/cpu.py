@@ -53,11 +53,11 @@ class CPU:
 
         program = []
 
-        # if len(sys.argv) != 2:
-        #     print("usage: ls8.py filename")
-        #     sys.exit(1)
+        if len(sys.argv) != 2:
+            print("usage: ls8.py filename")
+            sys.exit(1)
 
-        filename = "examples/alu.ls8"
+        filename = sys.argv[1]
 
         try:
             with open(filename) as f:
