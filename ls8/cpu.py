@@ -14,6 +14,11 @@ class CPU:
         self.ir = 0
         self.mar = 0
         self.mdr = 0
+        # L Less-than: during a CMP, set to 1 if registerA is less than registerB, zero otherwise.
+        # G Greater-than: during a CMP, set to 1 if registerA is greater than registerB, zero otherwise.
+        # E Equal: during a CMP, set to 1 if registerA is equal to registerB, zero otherwise.
+        #         0b00000LGE
+        self.fl = 0b00000000
 
         # Init branch table for opcodes
         self.optable = {0b00000001: self.handle_hlt,
@@ -24,7 +29,8 @@ class CPU:
                         0b01000110: self.handle_pop,
                         0b01010000: self.handle_call,
                         0b00010001: self.handle_ret,
-                        0b10100000: self.handle_add}
+                        0b10100000: self.handle_add,
+                        0b10100111: self.handle_cmp}
 
         # Init stack pointer in register
         self.reg[7] = 0xf4
@@ -139,9 +145,27 @@ class CPU:
         self.handle_pop(operand_a, operand_b)
         self.pc = self.reg[operand_a]
 
+    def handle_cmp(self, operand_a, operand_b):
+        if operand_a == operand_b:
+            self.fl = 1
+            # self.fl = ((1 << 0) | self.fl)
+        elif operand_a < operand_b:
+            self.fl = 2
+            # self.fl = ((1 << 1) | self.fl)
+        elif operand_a > operand_b:
+            self.fl = 4
+            # self.fl = ((1 << 2) | self.fl)
+
     def run(self):
         """Run the CPU."""
         running = True
+
+        self.handle_cmp(1, 1)
+        print(bin(self.fl))
+        self.handle_cmp(1, 2)
+        print(bin(self.fl))
+        self.handle_cmp(2, 1)
+        print(bin(self.fl))
 
         while running:
             self.ir = self.ram[self.pc]
