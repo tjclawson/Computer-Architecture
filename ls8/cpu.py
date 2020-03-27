@@ -83,8 +83,23 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
-        if op == "MUL":
+        elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "AND":
+            self.reg[reg_a] &= self.reg[reg_b]
+        elif op == "OR":
+            self.reg[reg_a] |= self.reg[reg_b]
+        elif op == "XOR":
+            self.reg[reg_a] ^= self.reg[reg_b]
+        elif op == "NOT":
+            self.reg[reg_a] = ~self.reg[reg_a]
+        elif op == "SHL":
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
+        elif op == "SHR":
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
+        elif op == "MOD":
+            self.reg[reg_a] %= self.reg[reg_b]
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -132,6 +147,27 @@ class CPU:
 
     def handle_add(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
+
+    def handle_and(self, operand_a, operand_b):
+        self.alu("AND", operand_a, operand_b)
+
+    def handle_or(self, operand_a, operand_b):
+        self.alu("OR", operand_a, operand_b)
+
+    def handle_xor(self, operand_a, operand_b):
+        self.alu("XOR", operand_a, operand_b)
+
+    def handle_not(self, operand_a, operand_b):
+        self.alu("NOT", operand_a, operand_b)
+
+    def handle_shl(self, operand_a, operand_b):
+        self.alu("SHL", operand_a, operand_b)
+
+    def handle_shr(self, operand_a, operand_b):
+        self.alu("SHR", operand_a, operand_b)
+
+    def handle_mod(self, operand_a, operand_b):
+        self.alu("MOD", operand_a, operand_b)
 
     def handle_push(self, operand_a, operand_b):
         self.reg[7] -= 1
