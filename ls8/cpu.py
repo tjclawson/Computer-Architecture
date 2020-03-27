@@ -34,7 +34,14 @@ class CPU:
                         0b01010100: self.handle_jmp,
                         0b01010101: self.handle_jeq,
                         0b01010110: self.handle_jne,
-                        0b10000100: self.handle_st}
+                        0b10000100: self.handle_st,
+                        0b10101000: self.handle_and,
+                        0b10101010: self.handle_or,
+                        0b01101001: self.handle_not,
+                        0b10101011: self.handle_xor,
+                        0b10100100: self.handle_mod,
+                        0b10101100: self.handle_shl,
+                        0b10101101: self.handle_shr}
 
         # Init stack pointer in register
         self.reg[7] = 0xf4
@@ -46,11 +53,11 @@ class CPU:
 
         program = []
 
-        if len(sys.argv) != 2:
-            print("usage: ls8.py filename")
-            sys.exit(1)
+        # if len(sys.argv) != 2:
+        #     print("usage: ls8.py filename")
+        #     sys.exit(1)
 
-        filename = sys.argv[1]
+        filename = "examples/alu.ls8"
 
         try:
             with open(filename) as f:
@@ -87,13 +94,21 @@ class CPU:
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == "AND":
-            self.reg[reg_a] &= self.reg[reg_b]
+            self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         elif op == "OR":
             self.reg[reg_a] |= self.reg[reg_b]
         elif op == "XOR":
             self.reg[reg_a] ^= self.reg[reg_b]
         elif op == "NOT":
-            self.reg[reg_a] = ~self.reg[reg_a]
+            s = format(self.reg[reg_a], '#010b')
+            new_s = ""
+            for i in range(2, len(s)):
+                if s[i] == "0":
+                    new_s += "1"
+                else:
+                    new_s += "0"
+
+            self.reg[reg_a] = int(new_s, 2)
         elif op == "SHL":
             self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
         elif op == "SHR":
@@ -147,7 +162,7 @@ class CPU:
         self.alu("MUL", operand_a, operand_b)
 
     def handle_add(self, operand_a, operand_b):
-        self.alu("MUL", operand_a, operand_b)
+        self.alu("ADD", operand_a, operand_b)
 
     def handle_and(self, operand_a, operand_b):
         self.alu("AND", operand_a, operand_b)
@@ -220,10 +235,14 @@ class CPU:
         """Run the CPU."""
         running = True
 
+        line = 1
+
         while running:
             self.ir = self.ram[self.pc]
             operand_a = self.ram[self.pc + 1]
             operand_b = self.ram[self.pc + 2]
+
+            line += 1
 
             self.optable[self.ir](operand_a, operand_b)
 
