@@ -31,7 +31,8 @@ class CPU:
                         0b00010001: self.handle_ret,
                         0b10100000: self.handle_add,
                         0b10100111: self.handle_cmp,
-                        0b01010100: self.handle_jmp}
+                        0b01010100: self.handle_jmp,
+                        0b01010101: self.handle_jeq}
 
         # Init stack pointer in register
         self.reg[7] = 0xf4
@@ -159,6 +160,10 @@ class CPU:
 
     def handle_jmp(self, operand_a, operand_b):
         self.pc = self.reg[operand_a]
+
+    def handle_jeq(self, operand_a, operand_b):
+        if self.fl == 1:
+            self.handle_jmp(operand_a, operand_b)
 
     def run(self):
         """Run the CPU."""
